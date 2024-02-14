@@ -670,6 +670,8 @@ public class Codegen : Vala.CodeVisitor {
 		} else if (element.access == SymbolAccessibility.PUBLIC && element.binding == MemberBinding.INSTANCE) {
 			var decl = new DeclarationStatement (new LocalVariable (get_local_type (element.variable_type), "v", new MemberAccess (new MemberAccess (null, "p"), element.name), element.source_reference));
 			b.add_statement (decl);
+		} else {
+			stdout.printf ("Unhandled `%s'\n", element.get_full_name ());
 		}
 
 		//FIXME
