@@ -2,7 +2,7 @@
     "id": "dev.vala.valac",
     "runtime": "org.gnome.Platform",
     "sdk": "org.gnome.Sdk",
-    "runtime-version": "44",
+    "runtime-version": "46",
     "sdk-extensions" : [
         "org.freedesktop.Sdk.Extension.vala"
     ],
