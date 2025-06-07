@@ -52,7 +52,7 @@ public class Vala.GVariantModule : GValueModule {
 	string get_dbus_value (EnumValue value, string default_value) {
 		var dbus_value = value.get_attribute_string ("DBus", "value");
 		if (dbus_value != null) {
-			return dbus_value;;
+			return dbus_value;
 		}
 		return default_value;
 	}
@@ -453,7 +453,7 @@ public class Vala.GVariantModule : GValueModule {
 		iter_call.add_argument (variant_expr);
 		ccode.add_expression (iter_call);
 
-		bool field_found = false;;
+		bool field_found = false;
 
 		foreach (Field f in st.get_fields ()) {
 			if (f.binding != MemberBinding.INSTANCE) {
