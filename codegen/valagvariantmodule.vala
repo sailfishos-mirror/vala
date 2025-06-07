@@ -195,13 +195,7 @@ public class Vala.GVariantModule : GValueModule {
 					type_free.add_argument (type_expr);
 					ccode.add_expression (type_free);
 				}
-				var temp_type = expr.target_type.copy ();
-				if (!expr.target_type.is_real_struct_type ()) {
-					temp_type.nullable = false;
-				}
-				var temp_value = create_temp_value (temp_type, false, expr);
-				store_value (temp_value, new GLibValue (temp_type, func_result), expr.source_reference);
-				ccode.add_return (get_cvalue_ (transform_value (temp_value, expr.target_type, expr)));
+				ccode.add_return (func_result);
 			}
 			ccode.add_else ();
 			if (!is_basic_type) {
@@ -550,6 +544,28 @@ public class Vala.GVariantModule : GValueModule {
 		return new CCodeIdentifier (temp_name);
 	}
 
+	private CCodeExpression memdup_value_type (ValueType type, owned CCodeExpression expr) {
+		var csizeof = new CCodeFunctionCall (new CCodeIdentifier ("sizeof"));
+		csizeof.add_argument (new CCodeIdentifier (get_ccode_name (type.type_symbol)));
+		CCodeFunctionCall cdup;
+		if (context.require_glib_version (2, 68)) {
+			cdup = new CCodeFunctionCall (new CCodeIdentifier ("g_memdup2"));
+		} else {
+			requires_memdup2 = true;
+			cdup = new CCodeFunctionCall (new CCodeIdentifier ("_vala_memdup2"));
+		}
+		if (!(expr is CCodeIdentifier)) {
+			string temp_name = "_tmp%d_".printf (next_temp_var_id++);
+			ccode.add_declaration (get_ccode_name (type.type_symbol), new CCodeVariableDeclarator (temp_name));
+			var cident = new CCodeIdentifier (temp_name);
+			ccode.add_assignment (cident, expr);
+			expr = (owned) cident;
+		}
+		cdup.add_argument (new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, expr));
+		cdup.add_argument (csizeof);
+		return cdup;
+	}
+
 	public override CCodeExpression? deserialize_expression (DataType type, CCodeExpression variant_expr, CCodeExpression? expr, CCodeExpression? error_expr = null, out bool may_fail = null) {
 		BasicTypeInfo basic_type;
 		CCodeExpression result = null;
@@ -559,26 +575,21 @@ public class Vala.GVariantModule : GValueModule {
 			result = deserialize_basic (basic_type, variant_expr, true);
 			result = generate_enum_value_from_string (type as EnumValueType, result, error_expr);
 			may_fail = true;
+			if (type.nullable) {
+				result = memdup_value_type ((ValueType) type, (owned) result);
+			}
 		} else if (get_basic_type_info (type.get_type_signature (), out basic_type)) {
 			result = deserialize_basic (basic_type, variant_expr);
+			if (!basic_type.is_string && type.nullable) {
+				result = memdup_value_type ((ValueType) type, (owned) result);
+			}
 		} else if (type is ArrayType) {
 			result = deserialize_array ((ArrayType) type, variant_expr, expr);
 		} else if (type.type_symbol is Struct) {
 			unowned Struct st = (Struct) type.type_symbol;
 			result = deserialize_struct (st, variant_expr);
 			if (result != null && type.nullable) {
-				var csizeof = new CCodeFunctionCall (new CCodeIdentifier ("sizeof"));
-				csizeof.add_argument (new CCodeIdentifier (get_ccode_name (st)));
-				CCodeFunctionCall cdup;
-				if (context.require_glib_version (2, 68)) {
-					cdup = new CCodeFunctionCall (new CCodeIdentifier ("g_memdup2"));
-				} else {
-					requires_memdup2 = true;
-					cdup = new CCodeFunctionCall (new CCodeIdentifier ("_vala_memdup2"));
-				}
-				cdup.add_argument (new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, result));
-				cdup.add_argument (csizeof);
-				result = cdup;
+				result = memdup_value_type ((ValueType) type, (owned) result);
 			}
 		} else if (type is ObjectType) {
 			if (type.type_symbol.get_full_name () == "GLib.Variant") {
@@ -899,10 +910,18 @@ public class Vala.GVariantModule : GValueModule {
 		CCodeExpression result = null;
 		if (is_string_marshalled_enum (type.type_symbol)) {
 			get_basic_type_info ("s", out basic_type);
-			result = generate_enum_value_to_string (type as EnumValueType, expr);
+			var enum_expr = expr;
+			if (type.nullable) {
+				enum_expr = new CCodeUnaryExpression (CCodeUnaryOperator.POINTER_INDIRECTION, enum_expr);
+			}
+			result = generate_enum_value_to_string (type as EnumValueType, enum_expr);
 			result = serialize_basic (basic_type, result);
 		} else if (get_basic_type_info (type.get_type_signature (), out basic_type)) {
-			result = serialize_basic (basic_type, expr);
+			var b_expr = expr;
+			if (!basic_type.is_string && type.nullable) {
+				b_expr = new CCodeUnaryExpression (CCodeUnaryOperator.POINTER_INDIRECTION, expr);
+			}
+			result = serialize_basic (basic_type, b_expr);
 		} else if (type is ArrayType) {
 			result = serialize_array ((ArrayType) type, expr);
 		} else if (type.type_symbol is Struct) {

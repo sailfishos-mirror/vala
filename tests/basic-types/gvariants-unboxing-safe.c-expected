@@ -49,11 +49,8 @@ VALA_EXTERN void foo_copy (const Foo* self,
 VALA_EXTERN void foo_destroy (Foo* self);
 G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC (Foo, foo_destroy)
 static void _vala_main (void);
-static gboolean* _bool_dup (gboolean* self);
 static gboolean* _variant_get1 (GVariant* value);
-static gint16* _int16_dup (gint16* self);
 static gint16* _variant_get2 (GVariant* value);
-static gint32* _int32_dup (gint32* self);
 static gint32* _variant_get3 (GVariant* value);
 static gboolean _int32_equal (const gint32 * s1,
                        const gint32 * s2);
@@ -138,47 +135,15 @@ foo_get_type (void)
 }
 
 static gboolean*
-_bool_dup (gboolean* self)
-{
-	gboolean* dup;
-	dup = g_new0 (gboolean, 1);
-	memcpy (dup, self, sizeof (gboolean));
-	return dup;
-}
-
-static gpointer
-__bool_dup0 (gpointer self)
-{
-	return self ? _bool_dup (self) : NULL;
-}
-
-static gboolean*
 _variant_get1 (GVariant* value)
 {
 	if (value && g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN)) {
 		gboolean _tmp0_;
-		gboolean* _tmp1_;
 		_tmp0_ = g_variant_get_boolean (value);
-		_tmp1_ = __bool_dup0 (&_tmp0_);
-		return _tmp1_;
+		return _vala_memdup2 (&_tmp0_, sizeof (gboolean));
 	} else {
 		return NULL;
 	}
-}
-
-static gint16*
-_int16_dup (gint16* self)
-{
-	gint16* dup;
-	dup = g_new0 (gint16, 1);
-	memcpy (dup, self, sizeof (gint16));
-	return dup;
-}
-
-static gpointer
-__int16_dup0 (gpointer self)
-{
-	return self ? _int16_dup (self) : NULL;
 }
 
 static gint16*
@@ -186,28 +151,11 @@ _variant_get2 (GVariant* value)
 {
 	if (value && g_variant_is_of_type (value, G_VARIANT_TYPE_INT16)) {
 		gint16 _tmp0_;
-		gint16* _tmp1_;
 		_tmp0_ = g_variant_get_int16 (value);
-		_tmp1_ = __int16_dup0 (&_tmp0_);
-		return _tmp1_;
+		return _vala_memdup2 (&_tmp0_, sizeof (gint16));
 	} else {
 		return NULL;
 	}
-}
-
-static gint32*
-_int32_dup (gint32* self)
-{
-	gint32* dup;
-	dup = g_new0 (gint32, 1);
-	memcpy (dup, self, sizeof (gint32));
-	return dup;
-}
-
-static gpointer
-__int32_dup0 (gpointer self)
-{
-	return self ? _int32_dup (self) : NULL;
 }
 
 static gint32*
@@ -215,10 +163,8 @@ _variant_get3 (GVariant* value)
 {
 	if (value && g_variant_is_of_type (value, G_VARIANT_TYPE_INT32)) {
 		gint32 _tmp0_;
-		gint32* _tmp1_;
 		_tmp0_ = g_variant_get_int32 (value);
-		_tmp1_ = __int32_dup0 (&_tmp0_);
-		return _tmp1_;
+		return _vala_memdup2 (&_tmp0_, sizeof (gint32));
 	} else {
 		return NULL;
 	}
@@ -255,10 +201,8 @@ _variant_get5 (GVariant* value)
 {
 	if (value && g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN)) {
 		gboolean _tmp0_;
-		gboolean* _tmp1_;
 		_tmp0_ = g_variant_get_boolean (value);
-		_tmp1_ = __bool_dup0 (&_tmp0_);
-		return _tmp1_;
+		return _vala_memdup2 (&_tmp0_, sizeof (gboolean));
 	} else {
 		return NULL;
 	}
@@ -285,10 +229,8 @@ _variant_get6 (GVariant* value)
 {
 	if (value && g_variant_is_of_type (value, G_VARIANT_TYPE_INT32)) {
 		gint32 _tmp0_;
-		gint32* _tmp1_;
 		_tmp0_ = g_variant_get_int32 (value);
-		_tmp1_ = __int32_dup0 (&_tmp0_);
-		return _tmp1_;
+		return _vala_memdup2 (&_tmp0_, sizeof (gint32));
 	} else {
 		return NULL;
 	}
@@ -307,8 +249,6 @@ _variant_get7 (GVariant* value,
 		gint _tmp1__length1;
 		GVariantIter _tmp2_;
 		GVariant* _tmp3_;
-		gchar** _tmp4_;
-		gint _tmp4__length1;
 		_tmp1_ = g_new (gchar*, 5);
 		_tmp1__length = 0;
 		_tmp1__size = 4;
@@ -325,9 +265,7 @@ _variant_get7 (GVariant* value,
 		*result_length1 = _tmp1__length1;
 		_tmp1_[_tmp1__length] = NULL;
 		g_variant_type_free (_tmp0_);
-		_tmp4_ = _tmp1_;
-		_tmp4__length1 = -1;
-		return _tmp4_;
+		return _tmp1_;
 	} else {
 		g_variant_type_free (_tmp0_);
 		return NULL;
@@ -378,7 +316,6 @@ _variant_get9 (GVariant* value)
 		GVariant* _tmp3_;
 		GVariant* _tmp4_;
 		GVariant* _tmp5_;
-		Foo* _tmp6_;
 		g_variant_iter_init (&_tmp2_, value);
 		_tmp3_ = g_variant_iter_next_value (&_tmp2_);
 		_tmp1_.s = g_variant_dup_string (_tmp3_, NULL);
@@ -390,8 +327,7 @@ _variant_get9 (GVariant* value)
 		_tmp1_.b = g_variant_get_boolean (_tmp5_);
 		g_variant_unref (_tmp5_);
 		g_variant_type_free (_tmp0_);
-		_tmp6_ = _vala_memdup2 (&_tmp1_, sizeof (Foo));
-		return _tmp6_;
+		return _vala_memdup2 (&_tmp1_, sizeof (Foo));
 	} else {
 		g_variant_type_free (_tmp0_);
 		return NULL;
@@ -433,15 +369,13 @@ _variant_get10 (GVariant* value)
 		GVariantIter _tmp2_;
 		GVariant* _tmp3_;
 		GVariant* _tmp4_;
-		GHashTable* _tmp5_;
 		_tmp1_ = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) g_free);
 		g_variant_iter_init (&_tmp2_, value);
 		while (g_variant_iter_loop (&_tmp2_, "{?*}", &_tmp3_, &_tmp4_)) {
 			g_hash_table_insert (_tmp1_, g_variant_dup_string (_tmp3_, NULL), g_variant_dup_string (_tmp4_, NULL));
 		}
 		g_variant_type_free (_tmp0_);
-		_tmp5_ = _tmp1_;
-		return _tmp5_;
+		return _tmp1_;
 	} else {
 		g_variant_type_free (_tmp0_);
 		return NULL;
@@ -458,15 +392,13 @@ _variant_get11 (GVariant* value)
 		GVariantIter _tmp2_;
 		GVariant* _tmp3_;
 		GVariant* _tmp4_;
-		GHashTable* _tmp5_;
 		_tmp1_ = g_hash_table_new_full (g_direct_hash, g_direct_equal, (GDestroyNotify) NULL, (GDestroyNotify) g_free);
 		g_variant_iter_init (&_tmp2_, value);
 		while (g_variant_iter_loop (&_tmp2_, "{?*}", &_tmp3_, &_tmp4_)) {
 			g_hash_table_insert (_tmp1_, (gpointer) ((gintptr) g_variant_get_int32 (_tmp3_)), g_variant_dup_string (_tmp4_, NULL));
 		}
 		g_variant_type_free (_tmp0_);
-		_tmp5_ = _tmp1_;
-		return _tmp5_;
+		return _tmp1_;
 	} else {
 		g_variant_type_free (_tmp0_);
 		return NULL;
