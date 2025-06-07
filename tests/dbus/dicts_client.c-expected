@@ -229,7 +229,7 @@ test_proxy_test_dict (Test* self,
 	}
 	g_variant_iter_init (&_reply_iter, _reply);
 	_tmp0_ = g_variant_iter_next_value (&_reply_iter);
-	_tmp1_ = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) g_variant_unref);
+	_tmp1_ = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) g_variant_unref);
 	g_variant_iter_init (&_tmp2_, _tmp0_);
 	while (g_variant_iter_loop (&_tmp2_, "{?*}", &_tmp3_, &_tmp4_)) {
 		g_hash_table_insert (_tmp1_, g_variant_dup_string (_tmp3_, NULL), g_variant_get_variant (_tmp4_));

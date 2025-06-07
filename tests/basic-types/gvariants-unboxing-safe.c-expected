@@ -434,7 +434,7 @@ _variant_get10 (GVariant* value)
 		GVariant* _tmp3_;
 		GVariant* _tmp4_;
 		GHashTable* _tmp5_;
-		_tmp1_ = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+		_tmp1_ = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) g_free);
 		g_variant_iter_init (&_tmp2_, value);
 		while (g_variant_iter_loop (&_tmp2_, "{?*}", &_tmp3_, &_tmp4_)) {
 			g_hash_table_insert (_tmp1_, g_variant_dup_string (_tmp3_, NULL), g_variant_dup_string (_tmp4_, NULL));
@@ -459,7 +459,7 @@ _variant_get11 (GVariant* value)
 		GVariant* _tmp3_;
 		GVariant* _tmp4_;
 		GHashTable* _tmp5_;
-		_tmp1_ = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
+		_tmp1_ = g_hash_table_new_full (g_direct_hash, g_direct_equal, (GDestroyNotify) NULL, (GDestroyNotify) g_free);
 		g_variant_iter_init (&_tmp2_, value);
 		while (g_variant_iter_loop (&_tmp2_, "{?*}", &_tmp3_, &_tmp4_)) {
 			g_hash_table_insert (_tmp1_, (gpointer) ((gintptr) g_variant_get_int32 (_tmp3_)), g_variant_dup_string (_tmp4_, NULL));

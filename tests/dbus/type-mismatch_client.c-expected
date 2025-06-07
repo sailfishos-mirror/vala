@@ -759,7 +759,7 @@ _dbus_test_out_mismatch (Test* self,
 	_ready_data->a = g_variant_get_int32 (_tmp20_);
 	g_variant_unref (_tmp20_);
 	_tmp21_ = g_variant_iter_next_value (&_arguments_iter);
-	_tmp22_ = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	_tmp22_ = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) NULL);
 	g_variant_iter_init (&_tmp23_, _tmp21_);
 	while (g_variant_iter_loop (&_tmp23_, "{?*}", &_tmp24_, &_tmp25_)) {
 		g_hash_table_insert (_tmp22_, g_variant_dup_string (_tmp24_, NULL), (gpointer) ((gintptr) g_variant_get_int32 (_tmp25_)));
@@ -827,7 +827,7 @@ _dbus_test_in_mismatch (Test* self,
 	_ready_data->a = g_variant_get_int32 (_tmp26_);
 	g_variant_unref (_tmp26_);
 	_tmp27_ = g_variant_iter_next_value (&_arguments_iter);
-	_tmp28_ = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	_tmp28_ = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) NULL);
 	g_variant_iter_init (&_tmp29_, _tmp27_);
 	while (g_variant_iter_loop (&_tmp29_, "{?*}", &_tmp30_, &_tmp31_)) {
 		g_hash_table_insert (_tmp28_, g_variant_dup_string (_tmp30_, NULL), (gpointer) ((gintptr) g_variant_get_int32 (_tmp31_)));
@@ -895,7 +895,7 @@ _dbus_test_out_mismatch_nothrow (Test* self,
 	_ready_data->a = g_variant_get_int32 (_tmp32_);
 	g_variant_unref (_tmp32_);
 	_tmp33_ = g_variant_iter_next_value (&_arguments_iter);
-	_tmp34_ = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	_tmp34_ = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) NULL);
 	g_variant_iter_init (&_tmp35_, _tmp33_);
 	while (g_variant_iter_loop (&_tmp35_, "{?*}", &_tmp36_, &_tmp37_)) {
 		g_hash_table_insert (_tmp34_, g_variant_dup_string (_tmp36_, NULL), (gpointer) ((gintptr) g_variant_get_int32 (_tmp37_)));

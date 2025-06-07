@@ -199,14 +199,14 @@ test_proxy_test_nested_dict (Test* self,
 	}
 	g_variant_iter_init (&_reply_iter, _reply);
 	_tmp0_ = g_variant_iter_next_value (&_reply_iter);
-	_tmp1_ = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) g_hash_table_unref);
+	_tmp1_ = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) g_hash_table_unref);
 	g_variant_iter_init (&_tmp2_, _tmp0_);
 	while (g_variant_iter_loop (&_tmp2_, "{?*}", &_tmp3_, &_tmp4_)) {
 		GHashTable* _tmp5_;
 		GVariantIter _tmp6_;
 		GVariant* _tmp7_;
 		GVariant* _tmp8_;
-		_tmp5_ = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) g_variant_unref);
+		_tmp5_ = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) g_variant_unref);
 		g_variant_iter_init (&_tmp6_, _tmp4_);
 		while (g_variant_iter_loop (&_tmp6_, "{?*}", &_tmp7_, &_tmp8_)) {
 			g_hash_table_insert (_tmp5_, g_variant_dup_string (_tmp7_, NULL), g_variant_get_variant (_tmp8_));

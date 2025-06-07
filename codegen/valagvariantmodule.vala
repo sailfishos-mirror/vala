@@ -509,25 +509,9 @@ public class Vala.GVariantModule : GValueModule {
 			hash_table_new.add_argument (new CCodeIdentifier ("g_direct_equal"));
 		}
 
-		if (key_type.type_symbol.is_subtype_of (string_type.type_symbol)) {
-			hash_table_new.add_argument (new CCodeIdentifier ("g_free"));
-		} else if (key_type.type_symbol == gvariant_type) {
-			hash_table_new.add_argument (new CCodeCastExpression (new CCodeIdentifier ("g_variant_unref"), "GDestroyNotify"));
-		} else if (key_type.type_symbol.get_full_name () == "GLib.HashTable") {
-			hash_table_new.add_argument (new CCodeCastExpression (new CCodeIdentifier ("g_hash_table_unref"), "GDestroyNotify"));
-		} else {
-			hash_table_new.add_argument (new CCodeConstant ("NULL"));
-		}
+		hash_table_new.add_argument (new CCodeCastExpression (get_destroy_func_expression (key_type), "GDestroyNotify"));
+		hash_table_new.add_argument (new CCodeCastExpression (get_destroy_func_expression (value_type), "GDestroyNotify"));
 
-		if (value_type.type_symbol.is_subtype_of (string_type.type_symbol)) {
-			hash_table_new.add_argument (new CCodeIdentifier ("g_free"));
-		} else if (value_type.type_symbol == gvariant_type) {
-			hash_table_new.add_argument (new CCodeCastExpression (new CCodeIdentifier ("g_variant_unref"), "GDestroyNotify"));
-		} else if (value_type.type_symbol.get_full_name () == "GLib.HashTable") {
-			hash_table_new.add_argument (new CCodeCastExpression (new CCodeIdentifier ("g_hash_table_unref"), "GDestroyNotify"));
-		} else {
-			hash_table_new.add_argument (new CCodeConstant ("NULL"));
-		}
 		ccode.add_assignment (new CCodeIdentifier (temp_name), hash_table_new);
 
 		var iter_call = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_iter_init"));
