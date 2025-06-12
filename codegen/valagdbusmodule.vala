@@ -271,11 +271,15 @@ public class Vala.GDBusModule : GVariantModule {
 			var out_args_info = new CCodeInitializerList ();
 
 			foreach (Parameter param in m.get_parameters ()) {
-				if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.Cancellable") {
-					continue;
-				}
-				if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.BusName") {
-					continue;
+				if (param.variable_type is ObjectType) {
+					var full_name = param.variable_type.type_symbol.get_full_name ();
+					switch (full_name) {
+					case "GLib.Cancellable":
+					case "GLib.BusName":
+					case "GLib.DBusConnection":
+					case "GLib.DBusMethodInvocation":
+						continue;
+					}
 				}
 
 				var info = new CCodeInitializerList ();

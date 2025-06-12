@@ -123,13 +123,16 @@ public class Vala.GDBusServerModule : GDBusClientModule {
 					continue;
 				}
 
-				if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.Cancellable") {
-					continue;
-				}
-
-				if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.BusName") {
-					// ignore BusName sender parameters
-					continue;
+				// Skip special parameters.
+				if (param.variable_type is ObjectType) {
+					var full_name = param.variable_type.type_symbol.get_full_name ();
+					switch (full_name) {
+					case "GLib.Cancellable":
+					case "GLib.BusName":
+					case "GLib.DBusConnection":
+					case "GLib.DBusMethodInvocation":
+						continue;
+					}
 				}
 
 				CCodeExpression param_expr;
@@ -208,17 +211,47 @@ public class Vala.GDBusServerModule : GDBusClientModule {
 			}
 
 			if (param.direction == ParameterDirection.IN && !ready) {
-				if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.Cancellable") {
-					ccall.add_argument (new CCodeConstant ("NULL"));
-					continue;
-				}
-
-				if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.BusName") {
-					// ignore BusName sender parameters
-					var sender = new CCodeFunctionCall (new CCodeIdentifier ("g_dbus_method_invocation_get_sender"));
-					sender.add_argument (new CCodeIdentifier ("invocation"));
-					ccall.add_argument (sender);
-					continue;
+				// Handle special params.
+				if (param.variable_type is ObjectType) {
+					var full_name = param.variable_type.type_symbol.get_full_name ();
+					switch (full_name) {
+					case "GLib.Cancellable":
+						// No cancellable on the server side.
+						if (!param.variable_type.nullable) {
+							Report.warning (param.variable_type.source_reference, "D-Bus cancellable parameters should be nullable");
+						}
+						ccall.add_argument (new CCodeConstant ("NULL"));
+						continue;
+					case "GLib.BusName":
+						var sender = new CCodeFunctionCall (new CCodeIdentifier ("g_dbus_method_invocation_get_sender"));
+						sender.add_argument (new CCodeIdentifier ("invocation"));
+						if (param.variable_type.value_owned) {
+							var cdup = new CCodeFunctionCall (new CCodeIdentifier ("g_strdup"));
+							cdup.add_argument (sender);
+							sender = (owned) cdup;
+						}
+						ccall.add_argument (sender);
+						continue;
+					case "GLib.DBusConnection":
+						var cconn = new CCodeFunctionCall (new CCodeIdentifier ("g_dbus_method_invocation_get_connection"));
+						cconn.add_argument (new CCodeIdentifier ("invocation"));
+						if (param.variable_type.value_owned) {
+							var cref = new CCodeFunctionCall (new CCodeIdentifier ("g_object_ref"));
+							cref.add_argument (cconn);
+							cconn = (owned) cref;
+						}
+						ccall.add_argument (cconn);
+						continue;
+					case "GLib.DBusMethodInvocation":
+						CCodeExpression cinvoc = new CCodeIdentifier ("invocation");
+						if (param.variable_type.value_owned) {
+							var cref = new CCodeFunctionCall (new CCodeIdentifier ("g_object_ref"));
+							cref.add_argument (cinvoc);
+							cinvoc = (owned) cref;
+						}
+						ccall.add_argument (cinvoc);
+						continue;
+					}
 				}
 
 				unowned Struct? st = param.variable_type.type_symbol as Struct;
@@ -431,13 +464,16 @@ public class Vala.GDBusServerModule : GDBusClientModule {
 		foreach (Parameter param in m.get_parameters ()) {
 			if ((param.direction == ParameterDirection.IN && (ready_data_expr == null || ready)) ||
 			    (param.direction == ParameterDirection.OUT && !no_reply && (!m.coroutine || ready))) {
-				if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.Cancellable") {
-					continue;
-				}
 
-				if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.BusName") {
-					// ignore BusName sender parameters
-					continue;
+				if (param.variable_type is ObjectType) {
+					var full_name = param.variable_type.type_symbol.get_full_name ();
+					switch (full_name) {
+					case "GLib.Cancellable":
+					case "GLib.BusName":
+					case "GLib.DBusConnection":
+					case "GLib.DBusMethodInvocation":
+						continue;
+					}
 				}
 
 				var owned_type = param.variable_type.copy ();

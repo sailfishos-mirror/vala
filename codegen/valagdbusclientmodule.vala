@@ -620,14 +620,18 @@ public class Vala.GDBusClientModule : GDBusModule {
 						expr = new CCodeUnaryExpression (CCodeUnaryOperator.POINTER_INDIRECTION, expr);
 					}
 
-					if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.Cancellable") {
-						cancellable = expr;
-						continue;
-					}
-
-					if (param.variable_type is ObjectType && param.variable_type.type_symbol.get_full_name () == "GLib.BusName") {
-						// ignore BusName sender parameters
-						continue;
+					if (param.variable_type is ObjectType) {
+						var full_name = param.variable_type.type_symbol.get_full_name ();
+						switch (full_name) {
+						case "GLib.Cancellable":
+							cancellable = expr;
+							continue;
+						case "GLib.BusName":
+						case "GLib.DBusConnection":
+						case "GLib.DBusMethodInvocation":
+							// Ignore.
+							continue;
+						}
 					}
 
 					send_dbus_value (param.variable_type, new CCodeIdentifier ("_arguments_builder"), expr, param);
