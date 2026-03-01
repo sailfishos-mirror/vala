@@ -504,6 +504,12 @@ public class Vala.GVariantModule : GValueModule {
 		} else if (key_type.type_symbol == gvariant_type) {
 			hash_table_new.add_argument (new CCodeIdentifier ("g_variant_hash"));
 			hash_table_new.add_argument (new CCodeIdentifier ("g_variant_equal"));
+		} else if (key_type.type_symbol == int64_type.type_symbol || key_type.type_symbol == uint64_type.type_symbol) {
+			hash_table_new.add_argument (new CCodeIdentifier ("g_int64_hash"));
+			hash_table_new.add_argument (new CCodeIdentifier ("g_int64_equal"));
+		} else if (key_type.type_symbol == double_type.type_symbol) {
+			hash_table_new.add_argument (new CCodeIdentifier ("g_double_hash"));
+			hash_table_new.add_argument (new CCodeIdentifier ("g_double_equal"));
 		} else {
 			hash_table_new.add_argument (new CCodeIdentifier ("g_direct_hash"));
 			hash_table_new.add_argument (new CCodeIdentifier ("g_direct_equal"));
