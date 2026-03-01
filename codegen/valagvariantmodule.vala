@@ -172,13 +172,8 @@ public class Vala.GVariantModule : GValueModule {
 			if (is_basic_type) {
 				type_expr = new CCodeIdentifier ("G_VARIANT_TYPE_" + basic_type.type_name.ascii_up ());
 			} else {
-				var gvariant_type_type = new ObjectType ((Class) root_symbol.scope.lookup ("GLib").scope.lookup ("VariantType"));
-				var type_temp = get_temp_variable (gvariant_type_type, true, expr, true);
-				emit_temp_var (type_temp);
-				type_expr = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_type_new"));
-				((CCodeFunctionCall) type_expr).add_argument (new CCodeIdentifier ("\"%s\"".printf (signature)));
-				store_value (get_local_cvalue (type_temp), new GLibValue (gvariant_type_type, type_expr), expr.source_reference);
-				type_expr = get_variable_cexpression (type_temp.name);
+				type_expr = new CCodeFunctionCall (new CCodeIdentifier ("G_VARIANT_TYPE"));
+				((CCodeFunctionCall) type_expr).add_argument (new CCodeConstant ("\"%s\"".printf (signature)));
 			}
 			ccheck.add_argument (type_expr);
 			ccode.open_if (new CCodeBinaryExpression (CCodeBinaryOperator.AND, new CCodeIdentifier ("value"), ccheck));
@@ -187,22 +182,8 @@ public class Vala.GVariantModule : GValueModule {
 		CCodeExpression func_result = deserialize_expression (target_type, new CCodeIdentifier ("value"), new CCodeIdentifier ("*result"));
 
 		if (expr.is_silent_cast) {
-			if (is_basic_type && basic_type.is_string) {
-				ccode.add_return (func_result);
-			} else {
-				if (!is_basic_type) {
-					var type_free = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_type_free"));
-					type_free.add_argument (type_expr);
-					ccode.add_expression (type_free);
-				}
-				ccode.add_return (func_result);
-			}
+			ccode.add_return (func_result);
 			ccode.add_else ();
-			if (!is_basic_type) {
-				var type_free = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_type_free"));
-				type_free.add_argument (type_expr);
-				ccode.add_expression (type_free);
-			}
 			ccode.add_return (new CCodeConstant ("NULL"));
 			ccode.close ();
 		} else if (target_type.is_real_non_null_struct_type ()) {
