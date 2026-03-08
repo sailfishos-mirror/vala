@@ -966,7 +966,20 @@ public class Vala.GDBusClientModule : GDBusModule {
 
 		// return on error
 		ccode.open_if (new CCodeUnaryExpression (CCodeUnaryOperator.LOGICAL_NEGATION, new CCodeIdentifier ("_reply")));
-		return_default_value (prop.property_type);
+		return_default_value (prop.property_type, true);
+		ccode.close ();
+
+		var unref_reply = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_unref"));
+		unref_reply.add_argument (new CCodeIdentifier ("_reply"));
+
+		var ccheck = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_is_of_type"));
+		ccheck.add_argument (new CCodeIdentifier ("_reply"));
+		ccheck.add_argument (new CCodeConstant ("G_VARIANT_TYPE (\"(v)\")"));
+		var cunlikely_check = new CCodeFunctionCall (new CCodeIdentifier ("G_UNLIKELY"));
+		cunlikely_check.add_argument (new CCodeUnaryExpression (CCodeUnaryOperator.LOGICAL_NEGATION, ccheck));
+		ccode.open_if (cunlikely_check);
+		ccode.add_expression (unref_reply);
+		return_default_value (prop.property_type, true);
 		ccode.close ();
 
 		var get_variant = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_get"));
@@ -975,10 +988,33 @@ public class Vala.GDBusClientModule : GDBusModule {
 		get_variant.add_argument (new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, new CCodeIdentifier ("_inner_reply")));
 		ccode.add_expression (get_variant);
 
-		var unref_reply = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_unref"));
-		unref_reply.add_argument (new CCodeIdentifier ("_reply"));
 		ccode.add_expression (unref_reply);
 
+		ccode.close ();
+
+		// Type-check the value.
+		var expected_signature = prop.property_type.get_type_signature (prop);
+		ccheck = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_is_of_type"));
+		ccheck.add_argument (new CCodeIdentifier ("_inner_reply"));
+		ccheck.add_argument (new CCodeConstant ("G_VARIANT_TYPE (\"%s\")".printf (expected_signature)));
+		cunlikely_check = new CCodeFunctionCall (new CCodeIdentifier ("G_UNLIKELY"));
+		cunlikely_check.add_argument (new CCodeUnaryExpression (CCodeUnaryOperator.LOGICAL_NEGATION, ccheck));
+		ccode.open_if (cunlikely_check);
+
+		var cwarning = new CCodeFunctionCall (new CCodeIdentifier ("g_warning"));
+		cwarning.add_argument (new CCodeConstant ("\"Expected property %s.%s to be of type '%s', but received '%s'\""));
+		cwarning.add_argument (new CCodeConstant ("\"%s\"".printf (dbus_iface_name)));
+		cwarning.add_argument (new CCodeConstant ("\"%s\"".printf (get_dbus_name_for_member (prop))));
+		cwarning.add_argument (new CCodeConstant ("\"%s\"".printf (expected_signature)));
+		var cget_type = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_get_type_string"));
+		cget_type.add_argument (new CCodeIdentifier ("_inner_reply"));
+		cwarning.add_argument (cget_type);
+		ccode.add_expression (cwarning);
+
+		unref_reply = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_unref"));
+		unref_reply.add_argument (new CCodeIdentifier ("_inner_reply"));
+		ccode.add_expression (unref_reply);
+		return_default_value (prop.property_type, true);
 		ccode.close ();
 
 		if (prop.property_type.is_real_non_null_struct_type ()) {

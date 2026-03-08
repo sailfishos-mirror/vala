@@ -282,11 +282,22 @@ test_dbus_proxy_get_construct_only (Test* self)
 		_arguments = g_variant_builder_end (&_arguments_builder);
 		_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "org.freedesktop.DBus.Properties.Get", _arguments, G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
 		if (!_reply) {
-			gint _tmp0_ = 0;
+			gint _tmp0_ = -1;
 			return _tmp0_;
+		}
+		if (G_UNLIKELY (!g_variant_is_of_type (_reply, G_VARIANT_TYPE ("(v)")))) {
+			gint _tmp1_ = -1;
+			g_variant_unref (_reply);
+			return _tmp1_;
 		}
 		g_variant_get (_reply, "(v)", &_inner_reply);
 		g_variant_unref (_reply);
+	}
+	if (G_UNLIKELY (!g_variant_is_of_type (_inner_reply, G_VARIANT_TYPE ("i")))) {
+		gint _tmp2_ = -1;
+		g_warning ("Expected property %s.%s to be of type '%s', but received '%s'", "org.example.Test", "ConstructOnly", "i", g_variant_get_type_string (_inner_reply));
+		g_variant_unref (_inner_reply);
+		return _tmp2_;
 	}
 	_result = g_variant_get_int32 (_inner_reply);
 	g_variant_unref (_inner_reply);
@@ -309,11 +320,22 @@ test_dbus_proxy_get_read (Test* self)
 		_arguments = g_variant_builder_end (&_arguments_builder);
 		_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "org.freedesktop.DBus.Properties.Get", _arguments, G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
 		if (!_reply) {
-			gint _tmp1_ = 0;
-			return _tmp1_;
+			gint _tmp3_ = -1;
+			return _tmp3_;
+		}
+		if (G_UNLIKELY (!g_variant_is_of_type (_reply, G_VARIANT_TYPE ("(v)")))) {
+			gint _tmp4_ = -1;
+			g_variant_unref (_reply);
+			return _tmp4_;
 		}
 		g_variant_get (_reply, "(v)", &_inner_reply);
 		g_variant_unref (_reply);
+	}
+	if (G_UNLIKELY (!g_variant_is_of_type (_inner_reply, G_VARIANT_TYPE ("i")))) {
+		gint _tmp5_ = -1;
+		g_warning ("Expected property %s.%s to be of type '%s', but received '%s'", "org.example.Test", "Read", "i", g_variant_get_type_string (_inner_reply));
+		g_variant_unref (_inner_reply);
+		return _tmp5_;
 	}
 	_result = g_variant_get_int32 (_inner_reply);
 	g_variant_unref (_inner_reply);
@@ -357,11 +379,22 @@ test_dbus_proxy_get_readwrite (Test* self)
 		_arguments = g_variant_builder_end (&_arguments_builder);
 		_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "org.freedesktop.DBus.Properties.Get", _arguments, G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
 		if (!_reply) {
-			gint _tmp2_ = 0;
-			return _tmp2_;
+			gint _tmp6_ = -1;
+			return _tmp6_;
+		}
+		if (G_UNLIKELY (!g_variant_is_of_type (_reply, G_VARIANT_TYPE ("(v)")))) {
+			gint _tmp7_ = -1;
+			g_variant_unref (_reply);
+			return _tmp7_;
 		}
 		g_variant_get (_reply, "(v)", &_inner_reply);
 		g_variant_unref (_reply);
+	}
+	if (G_UNLIKELY (!g_variant_is_of_type (_inner_reply, G_VARIANT_TYPE ("i")))) {
+		gint _tmp8_ = -1;
+		g_warning ("Expected property %s.%s to be of type '%s', but received '%s'", "org.example.Test", "Readwrite", "i", g_variant_get_type_string (_inner_reply));
+		g_variant_unref (_inner_reply);
+		return _tmp8_;
 	}
 	_result = g_variant_get_int32 (_inner_reply);
 	g_variant_unref (_inner_reply);

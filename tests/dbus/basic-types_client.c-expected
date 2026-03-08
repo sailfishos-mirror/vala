@@ -504,8 +504,17 @@ test_dbus_proxy_get_test_property (Test* self)
 		if (!_reply) {
 			return NULL;
 		}
+		if (G_UNLIKELY (!g_variant_is_of_type (_reply, G_VARIANT_TYPE ("(v)")))) {
+			g_variant_unref (_reply);
+			return NULL;
+		}
 		g_variant_get (_reply, "(v)", &_inner_reply);
 		g_variant_unref (_reply);
+	}
+	if (G_UNLIKELY (!g_variant_is_of_type (_inner_reply, G_VARIANT_TYPE ("s")))) {
+		g_warning ("Expected property %s.%s to be of type '%s', but received '%s'", "org.example.Test", "TestProperty", "s", g_variant_get_type_string (_inner_reply));
+		g_variant_unref (_inner_reply);
+		return NULL;
 	}
 	_result = g_variant_dup_string (_inner_reply, NULL);
 	g_variant_unref (_inner_reply);
@@ -549,11 +558,22 @@ test_dbus_proxy_get_test_int_property (Test* self)
 		_arguments = g_variant_builder_end (&_arguments_builder);
 		_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "org.freedesktop.DBus.Properties.Get", _arguments, G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
 		if (!_reply) {
-			gint _tmp8_ = 0;
+			gint _tmp8_ = -1;
 			return _tmp8_;
+		}
+		if (G_UNLIKELY (!g_variant_is_of_type (_reply, G_VARIANT_TYPE ("(v)")))) {
+			gint _tmp9_ = -1;
+			g_variant_unref (_reply);
+			return _tmp9_;
 		}
 		g_variant_get (_reply, "(v)", &_inner_reply);
 		g_variant_unref (_reply);
+	}
+	if (G_UNLIKELY (!g_variant_is_of_type (_inner_reply, G_VARIANT_TYPE ("i")))) {
+		gint _tmp10_ = -1;
+		g_warning ("Expected property %s.%s to be of type '%s', but received '%s'", "org.example.Test", "TestIntProperty", "i", g_variant_get_type_string (_inner_reply));
+		g_variant_unref (_inner_reply);
+		return _tmp10_;
 	}
 	_result = g_variant_get_int32 (_inner_reply);
 	g_variant_unref (_inner_reply);
@@ -599,8 +619,17 @@ test_dbus_proxy_get_test_signature_property (Test* self)
 		if (!_reply) {
 			return NULL;
 		}
+		if (G_UNLIKELY (!g_variant_is_of_type (_reply, G_VARIANT_TYPE ("(v)")))) {
+			g_variant_unref (_reply);
+			return NULL;
+		}
 		g_variant_get (_reply, "(v)", &_inner_reply);
 		g_variant_unref (_reply);
+	}
+	if (G_UNLIKELY (!g_variant_is_of_type (_inner_reply, G_VARIANT_TYPE ("g")))) {
+		g_warning ("Expected property %s.%s to be of type '%s', but received '%s'", "org.example.Test", "TestSignatureProperty", "g", g_variant_get_type_string (_inner_reply));
+		g_variant_unref (_inner_reply);
+		return NULL;
 	}
 	_result = g_variant_type_new (g_variant_get_string (_inner_reply, NULL));
 	g_variant_unref (_inner_reply);
@@ -614,13 +643,13 @@ test_dbus_proxy_set_test_signature_property (Test* self,
 	GVariant *_arguments;
 	GVariant *_reply;
 	GVariantBuilder _arguments_builder;
-	gchar* _tmp9_;
+	gchar* _tmp11_;
 	g_variant_builder_init (&_arguments_builder, G_VARIANT_TYPE_TUPLE);
 	g_variant_builder_add_value (&_arguments_builder, g_variant_new_string ("org.example.Test"));
 	g_variant_builder_add_value (&_arguments_builder, g_variant_new_string ("TestSignatureProperty"));
 	g_variant_builder_open (&_arguments_builder, G_VARIANT_TYPE_VARIANT);
-	_tmp9_ = g_variant_type_dup_string (value);
-	g_variant_builder_add_value (&_arguments_builder, g_variant_new_from_data (G_VARIANT_TYPE_SIGNATURE, _tmp9_, strlen (_tmp9_) + 1, TRUE, g_free, _tmp9_));
+	_tmp11_ = g_variant_type_dup_string (value);
+	g_variant_builder_add_value (&_arguments_builder, g_variant_new_from_data (G_VARIANT_TYPE_SIGNATURE, _tmp11_, strlen (_tmp11_) + 1, TRUE, g_free, _tmp11_));
 	g_variant_builder_close (&_arguments_builder);
 	_arguments = g_variant_builder_end (&_arguments_builder);
 	_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "org.freedesktop.DBus.Properties.Set", _arguments, G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
@@ -678,16 +707,16 @@ _dbus_test_test_int (Test* self,
 	GError* error = NULL;
 	GVariantIter _arguments_iter;
 	gint i = 0;
-	GVariant* _tmp10_;
+	GVariant* _tmp12_;
 	GDBusMessage* _reply_message = NULL;
 	GVariant* _reply;
 	GVariantBuilder _reply_builder;
 	gint j = 0;
 	gint result;
 	g_variant_iter_init (&_arguments_iter, _parameters_);
-	_tmp10_ = g_variant_iter_next_value (&_arguments_iter);
-	i = g_variant_get_int32 (_tmp10_);
-	g_variant_unref (_tmp10_);
+	_tmp12_ = g_variant_iter_next_value (&_arguments_iter);
+	i = g_variant_get_int32 (_tmp12_);
+	g_variant_unref (_tmp12_);
 	result = test_test_int (self, i, &j, &error);
 	if (error) {
 		g_dbus_method_invocation_take_error (invocation, error);
@@ -712,16 +741,16 @@ _dbus_test_test_string (Test* self,
 	GError* error = NULL;
 	GVariantIter _arguments_iter;
 	gchar* s = NULL;
-	GVariant* _tmp11_;
+	GVariant* _tmp13_;
 	GDBusMessage* _reply_message = NULL;
 	GVariant* _reply;
 	GVariantBuilder _reply_builder;
 	gchar* t = NULL;
 	gchar* result;
 	g_variant_iter_init (&_arguments_iter, _parameters_);
-	_tmp11_ = g_variant_iter_next_value (&_arguments_iter);
-	s = g_variant_dup_string (_tmp11_, NULL);
-	g_variant_unref (_tmp11_);
+	_tmp13_ = g_variant_iter_next_value (&_arguments_iter);
+	s = g_variant_dup_string (_tmp13_, NULL);
+	g_variant_unref (_tmp13_);
 	result = test_test_string (self, s, &t, &error);
 	if (error) {
 		g_dbus_method_invocation_take_error (invocation, error);
@@ -751,18 +780,18 @@ _dbus_test_test_signature (Test* self,
 	GError* error = NULL;
 	GVariantIter _arguments_iter;
 	GVariantType* tp1 = NULL;
-	GVariant* _tmp12_;
+	GVariant* _tmp14_;
 	GDBusMessage* _reply_message = NULL;
 	GVariant* _reply;
 	GVariantBuilder _reply_builder;
 	GVariantType* tp2 = NULL;
-	gchar* _tmp13_;
+	gchar* _tmp15_;
 	GVariantType* result;
-	gchar* _tmp14_;
+	gchar* _tmp16_;
 	g_variant_iter_init (&_arguments_iter, _parameters_);
-	_tmp12_ = g_variant_iter_next_value (&_arguments_iter);
-	tp1 = g_variant_type_new (g_variant_get_string (_tmp12_, NULL));
-	g_variant_unref (_tmp12_);
+	_tmp14_ = g_variant_iter_next_value (&_arguments_iter);
+	tp1 = g_variant_type_new (g_variant_get_string (_tmp14_, NULL));
+	g_variant_unref (_tmp14_);
 	result = test_test_signature (self, tp1, &tp2, &error);
 	if (error) {
 		g_dbus_method_invocation_take_error (invocation, error);
@@ -770,10 +799,10 @@ _dbus_test_test_signature (Test* self,
 	}
 	_reply_message = g_dbus_message_new_method_reply (g_dbus_method_invocation_get_message (invocation));
 	g_variant_builder_init (&_reply_builder, G_VARIANT_TYPE_TUPLE);
-	_tmp13_ = g_variant_type_dup_string (tp2);
-	g_variant_builder_add_value (&_reply_builder, g_variant_new_from_data (G_VARIANT_TYPE_SIGNATURE, _tmp13_, strlen (_tmp13_) + 1, TRUE, g_free, _tmp13_));
-	_tmp14_ = g_variant_type_dup_string (result);
-	g_variant_builder_add_value (&_reply_builder, g_variant_new_from_data (G_VARIANT_TYPE_SIGNATURE, _tmp14_, strlen (_tmp14_) + 1, TRUE, g_free, _tmp14_));
+	_tmp15_ = g_variant_type_dup_string (tp2);
+	g_variant_builder_add_value (&_reply_builder, g_variant_new_from_data (G_VARIANT_TYPE_SIGNATURE, _tmp15_, strlen (_tmp15_) + 1, TRUE, g_free, _tmp15_));
+	_tmp16_ = g_variant_type_dup_string (result);
+	g_variant_builder_add_value (&_reply_builder, g_variant_new_from_data (G_VARIANT_TYPE_SIGNATURE, _tmp16_, strlen (_tmp16_) + 1, TRUE, g_free, _tmp16_));
 	_g_variant_type_free0 (result);
 	_reply = g_variant_builder_end (&_reply_builder);
 	g_dbus_message_set_body (_reply_message, _reply);
@@ -839,10 +868,10 @@ _dbus_test_get_test_signature_property (Test* self)
 {
 	GVariantType* result;
 	GVariant* _reply;
-	gchar* _tmp15_;
+	gchar* _tmp17_;
 	result = test_get_test_signature_property (self);
-	_tmp15_ = g_variant_type_dup_string (result);
-	_reply = g_variant_new_from_data (G_VARIANT_TYPE_SIGNATURE, _tmp15_, strlen (_tmp15_) + 1, TRUE, g_free, _tmp15_);
+	_tmp17_ = g_variant_type_dup_string (result);
+	_reply = g_variant_new_from_data (G_VARIANT_TYPE_SIGNATURE, _tmp17_, strlen (_tmp17_) + 1, TRUE, g_free, _tmp17_);
 	_g_variant_type_free0 (result);
 	return _reply;
 }

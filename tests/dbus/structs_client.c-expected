@@ -384,8 +384,17 @@ test_dbus_proxy_get_test_property (Test* self,
 		if (!_reply) {
 			return;
 		}
+		if (G_UNLIKELY (!g_variant_is_of_type (_reply, G_VARIANT_TYPE ("(v)")))) {
+			g_variant_unref (_reply);
+			return;
+		}
 		g_variant_get (_reply, "(v)", &_inner_reply);
 		g_variant_unref (_reply);
+	}
+	if (G_UNLIKELY (!g_variant_is_of_type (_inner_reply, G_VARIANT_TYPE ("(is)")))) {
+		g_warning ("Expected property %s.%s to be of type '%s', but received '%s'", "org.example.Test", "TestProperty", "(is)", g_variant_get_type_string (_inner_reply));
+		g_variant_unref (_inner_reply);
+		return;
 	}
 	g_variant_iter_init (&_tmp12_, _inner_reply);
 	_tmp13_ = g_variant_iter_next_value (&_tmp12_);

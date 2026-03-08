@@ -482,8 +482,17 @@ test_dbus_proxy_get_test_property (Test* self,
 		if (!_reply) {
 			return NULL;
 		}
+		if (G_UNLIKELY (!g_variant_is_of_type (_reply, G_VARIANT_TYPE ("(v)")))) {
+			g_variant_unref (_reply);
+			return NULL;
+		}
 		g_variant_get (_reply, "(v)", &_inner_reply);
 		g_variant_unref (_reply);
+	}
+	if (G_UNLIKELY (!g_variant_is_of_type (_inner_reply, G_VARIANT_TYPE ("as")))) {
+		g_warning ("Expected property %s.%s to be of type '%s', but received '%s'", "org.example.Test", "TestProperty", "as", g_variant_get_type_string (_inner_reply));
+		g_variant_unref (_inner_reply);
+		return NULL;
 	}
 	_result_length1 = 0;
 	_tmp22_ = g_new (gchar*, 5);
