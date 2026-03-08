@@ -164,9 +164,11 @@ public class Vala.GDBusServerModule : GDBusClientModule {
 
 				var message_expr = new CCodeFunctionCall (new CCodeIdentifier ("g_dbus_method_invocation_get_message"));
 				message_expr.add_argument (new CCodeIdentifier ("invocation"));
+				var fd_list_expr = new CCodeFunctionCall (new CCodeIdentifier ("g_dbus_message_get_unix_fd_list"));
+				fd_list_expr.add_argument (message_expr);
 
 				bool may_fail;
-				receive_dbus_value (param.variable_type, message_expr, new CCodeIdentifier ("_arguments_iter"), param_expr, param, new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, new CCodeIdentifier ("error")), out may_fail);
+				receive_dbus_value (param.variable_type, fd_list_expr, new CCodeIdentifier ("_arguments_iter"), param_expr, param, new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, new CCodeIdentifier ("error")), out may_fail);
 
 				if (may_fail) {
 					if (!uses_error) {

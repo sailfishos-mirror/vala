@@ -183,11 +183,8 @@ static GHashTable*
 test_proxy_test_nested_dict (Test* self,
                              GError** error)
 {
-	GDBusMessage *_message;
-	GVariant *_arguments;
-	GVariantBuilder _arguments_builder;
-	GDBusMessage *_reply_message;
 	GVariant *_reply;
+	GVariantBuilder _arguments_builder;
 	GVariantIter _reply_iter;
 	GHashTable* _result = NULL;
 	GVariant* _tmp0_;
@@ -195,21 +192,11 @@ test_proxy_test_nested_dict (Test* self,
 	GVariantIter _tmp2_;
 	GVariant* _tmp3_;
 	GVariant* _tmp4_;
-	G_IO_ERROR;
-	_message = g_dbus_message_new_method_call (g_dbus_proxy_get_name ((GDBusProxy *) self), g_dbus_proxy_get_object_path ((GDBusProxy *) self), "org.example.Test", "TestNestedDict");
 	g_variant_builder_init (&_arguments_builder, G_VARIANT_TYPE_TUPLE);
-	_arguments = g_variant_builder_end (&_arguments_builder);
-	g_dbus_message_set_body (_message, _arguments);
-	_reply_message = g_dbus_connection_send_message_with_reply_sync (g_dbus_proxy_get_connection ((GDBusProxy *) self), _message, G_DBUS_SEND_MESSAGE_FLAGS_NONE, g_dbus_proxy_get_default_timeout ((GDBusProxy *) self), NULL, NULL, error);
-	g_object_unref (_message);
-	if (!_reply_message) {
+	_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "TestNestedDict", g_variant_builder_end (&_arguments_builder), G_DBUS_CALL_FLAGS_NONE, -1, NULL, error);
+	if (!_reply) {
 		return NULL;
 	}
-	if (g_dbus_message_to_gerror (_reply_message, error)) {
-		g_object_unref (_reply_message);
-		return NULL;
-	}
-	_reply = g_dbus_message_get_body (_reply_message);
 	g_variant_iter_init (&_reply_iter, _reply);
 	_tmp0_ = g_variant_iter_next_value (&_reply_iter);
 	_tmp1_ = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) g_hash_table_unref);
@@ -228,7 +215,7 @@ test_proxy_test_nested_dict (Test* self,
 	}
 	_result = _tmp1_;
 	g_variant_unref (_tmp0_);
-	g_object_unref (_reply_message);
+	g_variant_unref (_reply);
 	return _result;
 }
 

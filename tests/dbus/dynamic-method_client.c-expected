@@ -48,10 +48,10 @@ struct _RunData {
 	gchar* s;
 	gint i;
 	GDBusProxy* _tmp5_;
-	gchar* _tmp10_;
-	gint _tmp11_;
-	const gchar* _tmp12_;
-	GMainLoop* _tmp13_;
+	gchar* _tmp9_;
+	gint _tmp10_;
+	const gchar* _tmp11_;
+	GMainLoop* _tmp12_;
 	GError* _inner_error0_;
 };
 
@@ -119,42 +119,29 @@ _dynamic_do_foo0 (GDBusProxy* self,
                   gchar** param2,
                   GError** error)
 {
-	GDBusMessage *_message;
-	GVariant *_arguments;
-	GVariantBuilder _arguments_builder;
-	GDBusMessage *_reply_message;
 	GVariant *_reply;
+	GVariantBuilder _arguments_builder;
 	GVariantIter _reply_iter;
 	gchar* _vala_param2 = NULL;
-	GVariant* _tmp8_;
+	GVariant* _tmp7_;
 	gint _result = 0;
-	GVariant* _tmp9_;
-	_message = g_dbus_message_new_method_call (g_dbus_proxy_get_name ((GDBusProxy *) self), g_dbus_proxy_get_object_path ((GDBusProxy *) self), g_dbus_proxy_get_interface_name ((GDBusProxy *) self), "do_foo");
+	GVariant* _tmp8_;
 	g_variant_builder_init (&_arguments_builder, G_VARIANT_TYPE_TUPLE);
 	g_variant_builder_add_value (&_arguments_builder, g_variant_new_int32 (param1));
-	_arguments = g_variant_builder_end (&_arguments_builder);
-	g_dbus_message_set_body (_message, _arguments);
-	_reply_message = g_dbus_connection_send_message_with_reply_sync (g_dbus_proxy_get_connection ((GDBusProxy *) self), _message, G_DBUS_SEND_MESSAGE_FLAGS_NONE, g_dbus_proxy_get_default_timeout ((GDBusProxy *) self), NULL, NULL, error);
-	g_object_unref (_message);
-	if (!_reply_message) {
-		gint _tmp6_ = 0;
+	_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "do_foo", g_variant_builder_end (&_arguments_builder), G_DBUS_CALL_FLAGS_NONE, -1, NULL, error);
+	if (!_reply) {
+		gint _tmp6_ = -1;
 		return _tmp6_;
 	}
-	if (g_dbus_message_to_gerror (_reply_message, error)) {
-		gint _tmp7_ = 0;
-		g_object_unref (_reply_message);
-		return _tmp7_;
-	}
-	_reply = g_dbus_message_get_body (_reply_message);
 	g_variant_iter_init (&_reply_iter, _reply);
-	_tmp8_ = g_variant_iter_next_value (&_reply_iter);
-	_vala_param2 = g_variant_dup_string (_tmp8_, NULL);
-	g_variant_unref (_tmp8_);
+	_tmp7_ = g_variant_iter_next_value (&_reply_iter);
+	_vala_param2 = g_variant_dup_string (_tmp7_, NULL);
+	g_variant_unref (_tmp7_);
 	*param2 = _vala_param2;
-	_tmp9_ = g_variant_iter_next_value (&_reply_iter);
-	_result = g_variant_get_int32 (_tmp9_);
-	g_variant_unref (_tmp9_);
-	g_object_unref (_reply_message);
+	_tmp8_ = g_variant_iter_next_value (&_reply_iter);
+	_result = g_variant_get_int32 (_tmp8_);
+	g_variant_unref (_tmp8_);
+	g_variant_unref (_reply);
 	return _result;
 }
 
@@ -196,11 +183,11 @@ run_co (RunData* _data_)
 			goto __catch0_g_error;
 		}
 		_data_->_tmp5_ = _data_->test;
-		_data_->_tmp10_ = NULL;
-		_data_->_tmp11_ = _dynamic_do_foo0 (_data_->_tmp5_, 42, &_data_->_tmp10_, &_data_->_inner_error0_);
+		_data_->_tmp9_ = NULL;
+		_data_->_tmp10_ = _dynamic_do_foo0 (_data_->_tmp5_, 42, &_data_->_tmp9_, &_data_->_inner_error0_);
 		_g_free0 (_data_->s);
-		_data_->s = _data_->_tmp10_;
-		_data_->i = _data_->_tmp11_;
+		_data_->s = _data_->_tmp9_;
+		_data_->i = _data_->_tmp10_;
 		if (G_UNLIKELY (_data_->_inner_error0_ != NULL)) {
 			_g_free0 (_data_->s);
 			_g_object_unref0 (_data_->test);
@@ -208,8 +195,8 @@ run_co (RunData* _data_)
 			goto __catch0_g_error;
 		}
 		_vala_assert (_data_->i == 23, "i == 23");
-		_data_->_tmp12_ = _data_->s;
-		_vala_assert (g_strcmp0 (_data_->_tmp12_, "foo") == 0, "s == \"foo\"");
+		_data_->_tmp11_ = _data_->s;
+		_vala_assert (g_strcmp0 (_data_->_tmp11_, "foo") == 0, "s == \"foo\"");
 		_g_free0 (_data_->s);
 		_g_object_unref0 (_data_->test);
 		_g_object_unref0 (_data_->bus);
@@ -226,8 +213,8 @@ run_co (RunData* _data_)
 		g_object_unref (_data_->_async_result);
 		return FALSE;
 	}
-	_data_->_tmp13_ = main_loop;
-	g_main_loop_quit (_data_->_tmp13_);
+	_data_->_tmp12_ = main_loop;
+	g_main_loop_quit (_data_->_tmp12_);
 	g_task_return_pointer (_data_->_async_result, _data_, NULL);
 	if (_data_->_state_ != 0) {
 		while (!g_task_get_completed (_data_->_async_result)) {

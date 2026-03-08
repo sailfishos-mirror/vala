@@ -321,15 +321,14 @@ _dbus_test_test_in (Test* self,
 	GUnixInputStream* j = NULL;
 	GUnixInputStream* result;
 	g_variant_iter_init (&_arguments_iter, _parameters_);
-	_fd_list = g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation));
-	if (_fd_list) {
+	if (g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation))) {
 		g_variant_iter_next (&_arguments_iter, "h", &_fd_index);
-		_fd = g_unix_fd_list_get (_fd_list, _fd_index, &error);
+		_fd = g_unix_fd_list_get (g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation)), _fd_index, &error);
 		if (_fd >= 0) {
 			i = (GUnixInputStream *) g_unix_input_stream_new (_fd, TRUE);
 		}
 	} else {
-		g_set_error_literal (&error, G_IO_ERROR, G_IO_ERROR_FAILED, "FD List is NULL");
+		g_set_error_literal (&error, G_IO_ERROR, G_IO_ERROR_FAILED, "No file descriptor returned");
 	}
 	if (error) {
 		g_dbus_method_invocation_take_error (invocation, error);

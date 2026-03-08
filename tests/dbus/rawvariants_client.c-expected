@@ -388,38 +388,24 @@ test_proxy_test_method (Test* self,
                         gint k,
                         GError** error)
 {
-	GDBusMessage *_message;
-	GVariant *_arguments;
-	GVariantBuilder _arguments_builder;
-	GDBusMessage *_reply_message;
 	GVariant *_reply;
+	GVariantBuilder _arguments_builder;
 	GVariantIter _reply_iter;
 	gint _result = 0;
-	GVariant* _tmp3_;
-	G_IO_ERROR;
-	_message = g_dbus_message_new_method_call (g_dbus_proxy_get_name ((GDBusProxy *) self), g_dbus_proxy_get_object_path ((GDBusProxy *) self), "org.example.Test", "TestMethod");
+	GVariant* _tmp2_;
 	g_variant_builder_init (&_arguments_builder, G_VARIANT_TYPE_TUPLE);
 	g_variant_builder_add_value (&_arguments_builder, g_variant_new_int32 (j));
 	g_variant_builder_add_value (&_arguments_builder, g_variant_new_int32 (k));
-	_arguments = g_variant_builder_end (&_arguments_builder);
-	g_dbus_message_set_body (_message, _arguments);
-	_reply_message = g_dbus_connection_send_message_with_reply_sync (g_dbus_proxy_get_connection ((GDBusProxy *) self), _message, G_DBUS_SEND_MESSAGE_FLAGS_NONE, g_dbus_proxy_get_default_timeout ((GDBusProxy *) self), NULL, NULL, error);
-	g_object_unref (_message);
-	if (!_reply_message) {
-		gint _tmp1_ = 0;
+	_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "TestMethod", g_variant_builder_end (&_arguments_builder), G_DBUS_CALL_FLAGS_NONE, -1, NULL, error);
+	if (!_reply) {
+		gint _tmp1_ = -1;
 		return _tmp1_;
 	}
-	if (g_dbus_message_to_gerror (_reply_message, error)) {
-		gint _tmp2_ = 0;
-		g_object_unref (_reply_message);
-		return _tmp2_;
-	}
-	_reply = g_dbus_message_get_body (_reply_message);
 	g_variant_iter_init (&_reply_iter, _reply);
-	_tmp3_ = g_variant_iter_next_value (&_reply_iter);
-	_result = g_variant_get_int32 (_tmp3_);
-	g_variant_unref (_tmp3_);
-	g_object_unref (_reply_message);
+	_tmp2_ = g_variant_iter_next_value (&_reply_iter);
+	_result = g_variant_get_int32 (_tmp2_);
+	g_variant_unref (_tmp2_);
+	g_variant_unref (_reply);
 	return _result;
 }
 
@@ -486,20 +472,20 @@ _dbus_test_test_method (Test* self,
 	GError* error = NULL;
 	GVariantIter _arguments_iter;
 	gint j = 0;
-	GVariant* _tmp4_;
+	GVariant* _tmp3_;
 	gint k = 0;
-	GVariant* _tmp5_;
+	GVariant* _tmp4_;
 	GDBusMessage* _reply_message = NULL;
 	GVariant* _reply;
 	GVariantBuilder _reply_builder;
 	gint result;
 	g_variant_iter_init (&_arguments_iter, _parameters_);
+	_tmp3_ = g_variant_iter_next_value (&_arguments_iter);
+	j = g_variant_get_int32 (_tmp3_);
+	g_variant_unref (_tmp3_);
 	_tmp4_ = g_variant_iter_next_value (&_arguments_iter);
-	j = g_variant_get_int32 (_tmp4_);
+	k = g_variant_get_int32 (_tmp4_);
 	g_variant_unref (_tmp4_);
-	_tmp5_ = g_variant_iter_next_value (&_arguments_iter);
-	k = g_variant_get_int32 (_tmp5_);
-	g_variant_unref (_tmp5_);
 	result = test_test_method (self, j, k, &error);
 	if (error) {
 		g_dbus_method_invocation_take_error (invocation, error);
@@ -760,33 +746,20 @@ test_raw_proxy_test_method (TestRaw* self,
                             GVariant* k,
                             GError** error)
 {
-	GDBusMessage *_message;
-	GVariant *_arguments;
-	GVariantBuilder _arguments_builder;
-	GDBusMessage *_reply_message;
 	GVariant *_reply;
+	GVariantBuilder _arguments_builder;
 	GVariantIter _reply_iter;
 	GVariant* _result = NULL;
-	G_IO_ERROR;
-	_message = g_dbus_message_new_method_call (g_dbus_proxy_get_name ((GDBusProxy *) self), g_dbus_proxy_get_object_path ((GDBusProxy *) self), "org.example.Test", "TestMethod");
 	g_variant_builder_init (&_arguments_builder, G_VARIANT_TYPE_TUPLE);
 	g_variant_builder_add_value (&_arguments_builder, j);
 	g_variant_builder_add_value (&_arguments_builder, k);
-	_arguments = g_variant_builder_end (&_arguments_builder);
-	g_dbus_message_set_body (_message, _arguments);
-	_reply_message = g_dbus_connection_send_message_with_reply_sync (g_dbus_proxy_get_connection ((GDBusProxy *) self), _message, G_DBUS_SEND_MESSAGE_FLAGS_NONE, g_dbus_proxy_get_default_timeout ((GDBusProxy *) self), NULL, NULL, error);
-	g_object_unref (_message);
-	if (!_reply_message) {
+	_reply = g_dbus_proxy_call_sync ((GDBusProxy *) self, "TestMethod", g_variant_builder_end (&_arguments_builder), G_DBUS_CALL_FLAGS_NONE, -1, NULL, error);
+	if (!_reply) {
 		return NULL;
 	}
-	if (g_dbus_message_to_gerror (_reply_message, error)) {
-		g_object_unref (_reply_message);
-		return NULL;
-	}
-	_reply = g_dbus_message_get_body (_reply_message);
 	g_variant_iter_init (&_reply_iter, _reply);
 	_result = g_variant_iter_next_value (&_reply_iter);
-	g_object_unref (_reply_message);
+	g_variant_unref (_reply);
 	return _result;
 }
 

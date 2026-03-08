@@ -186,66 +186,60 @@ test_proxy_test_in (Test* self,
                     GError** error)
 {
 	GUnixFDList* _fd_list;
-	GDBusMessage *_message;
-	GVariant *_arguments;
+	GUnixFDList* _out_fd_list;
+	GVariant *_reply;
 	GVariantBuilder _arguments_builder;
-	GDBusMessage *_reply_message;
 	gint _fd_index = 0;
 	gint _fd;
-	GVariant *_reply;
 	GVariantIter _reply_iter;
 	GUnixInputStream* _vala_j = NULL;
 	GUnixInputStream* _result = NULL;
-	G_IO_ERROR;
-	_message = g_dbus_message_new_method_call (g_dbus_proxy_get_name ((GDBusProxy *) self), g_dbus_proxy_get_object_path ((GDBusProxy *) self), "org.example.Test", "TestIn");
 	g_variant_builder_init (&_arguments_builder, G_VARIANT_TYPE_TUPLE);
 	_fd_list = g_unix_fd_list_new ();
 	g_variant_builder_add (&_arguments_builder, "h", g_unix_fd_list_append (_fd_list, g_unix_input_stream_get_fd (i), NULL));
-	_arguments = g_variant_builder_end (&_arguments_builder);
-	g_dbus_message_set_body (_message, _arguments);
-	g_dbus_message_set_unix_fd_list (_message, _fd_list);
+	_reply = g_dbus_proxy_call_with_unix_fd_list_sync ((GDBusProxy *) self, "TestIn", g_variant_builder_end (&_arguments_builder), G_DBUS_CALL_FLAGS_NONE, -1, _fd_list, &_out_fd_list, NULL, error);
 	g_object_unref (_fd_list);
-	_reply_message = g_dbus_connection_send_message_with_reply_sync (g_dbus_proxy_get_connection ((GDBusProxy *) self), _message, G_DBUS_SEND_MESSAGE_FLAGS_NONE, g_dbus_proxy_get_default_timeout ((GDBusProxy *) self), NULL, NULL, error);
-	g_object_unref (_message);
-	if (!_reply_message) {
+	if (!_reply) {
 		return NULL;
 	}
-	if (g_dbus_message_to_gerror (_reply_message, error)) {
-		g_object_unref (_reply_message);
-		return NULL;
-	}
-	_reply = g_dbus_message_get_body (_reply_message);
 	g_variant_iter_init (&_reply_iter, _reply);
-	_fd_list = g_dbus_message_get_unix_fd_list (_reply_message);
-	if (_fd_list) {
+	if (_out_fd_list) {
 		g_variant_iter_next (&_reply_iter, "h", &_fd_index);
-		_fd = g_unix_fd_list_get (_fd_list, _fd_index, error);
+		_fd = g_unix_fd_list_get (_out_fd_list, _fd_index, error);
 		if (_fd >= 0) {
 			_vala_j = (GUnixInputStream *) g_unix_input_stream_new (_fd, TRUE);
 		}
 	} else {
-		g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED, "FD List is NULL");
+		g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED, "No file descriptor returned");
 	}
 	*j = _vala_j;
 	if (error && (*error)) {
-		g_object_unref (_reply_message);
+		g_variant_unref (_reply);
+		if (_out_fd_list) {
+			g_object_unref (_out_fd_list);
+		}
 		return NULL;
 	}
-	_fd_list = g_dbus_message_get_unix_fd_list (_reply_message);
-	if (_fd_list) {
+	if (_out_fd_list) {
 		g_variant_iter_next (&_reply_iter, "h", &_fd_index);
-		_fd = g_unix_fd_list_get (_fd_list, _fd_index, error);
+		_fd = g_unix_fd_list_get (_out_fd_list, _fd_index, error);
 		if (_fd >= 0) {
 			_result = (GUnixInputStream *) g_unix_input_stream_new (_fd, TRUE);
 		}
 	} else {
-		g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED, "FD List is NULL");
+		g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED, "No file descriptor returned");
 	}
 	if (error && (*error)) {
-		g_object_unref (_reply_message);
+		g_variant_unref (_reply);
+		if (_out_fd_list) {
+			g_object_unref (_out_fd_list);
+		}
 		return NULL;
 	}
-	g_object_unref (_reply_message);
+	g_variant_unref (_reply);
+	if (_out_fd_list) {
+		g_object_unref (_out_fd_list);
+	}
 	return _result;
 }
 
@@ -272,15 +266,14 @@ _dbus_test_test_in (Test* self,
 	GUnixInputStream* j = NULL;
 	GUnixInputStream* result;
 	g_variant_iter_init (&_arguments_iter, _parameters_);
-	_fd_list = g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation));
-	if (_fd_list) {
+	if (g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation))) {
 		g_variant_iter_next (&_arguments_iter, "h", &_fd_index);
-		_fd = g_unix_fd_list_get (_fd_list, _fd_index, &error);
+		_fd = g_unix_fd_list_get (g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation)), _fd_index, &error);
 		if (_fd >= 0) {
 			i = (GUnixInputStream *) g_unix_input_stream_new (_fd, TRUE);
 		}
 	} else {
-		g_set_error_literal (&error, G_IO_ERROR, G_IO_ERROR_FAILED, "FD List is NULL");
+		g_set_error_literal (&error, G_IO_ERROR, G_IO_ERROR_FAILED, "No file descriptor returned");
 	}
 	if (error) {
 		g_dbus_method_invocation_take_error (invocation, error);
