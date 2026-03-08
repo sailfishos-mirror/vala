@@ -882,6 +882,7 @@ TESTS = \
 	dbus/filedescriptor-async.test \
 	dbus/filedescriptor-errors.test \
 	dbus/dicts.test \
+	dbus/type-mismatch.test \
 	dbus/bug596862.vala \
 	dbus/bug602003.test \
 	dbus/bug735437.test \
