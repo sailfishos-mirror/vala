@@ -952,12 +952,14 @@ public class Codegen : Vala.CodeVisitor {
 
 	DataType set_type_arguments (DataType d) {
 		if (d.has_type_arguments ()) {
-			var type = context.analyzer.string_type.copy ();
-			type.value_owned = true;
 			var type_args = d.get_type_arguments ();
 			int size = type_args.size;
 			for (int i = 0; i < size; i++) {
-				type_args[i] = type.copy ();
+				if (type_args[i] is GenericType) {
+					var type = context.analyzer.string_type.copy ();
+					type.value_owned = true;
+					type_args[i] = type;
+				}
 			}
 		}
 		return d;
