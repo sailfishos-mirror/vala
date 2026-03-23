@@ -6472,7 +6472,7 @@ namespace GLib {
 	[Compact]
 	[Immutable]
 	[Version (since = "2.24")]
-	[CCode (copy_function = "g_variant_type_copy", free_function = "g_variant_type_free", type_id = "G_TYPE_VARIANT_TYPE")]
+	[CCode (copy_function = "g_variant_type_copy", free_function = "g_variant_type_free", type_id = "G_TYPE_VARIANT_TYPE", type_signature = "g")]
 	public class VariantType {
 		[CCode (cname = "G_VARIANT_TYPE_BOOLEAN")]
 		public static VariantType BOOLEAN;

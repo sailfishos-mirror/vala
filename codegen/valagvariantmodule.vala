@@ -314,13 +314,20 @@ public class Vala.GVariantModule : GValueModule {
 		var get_call = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_get_" + basic_type.type_name));
 		get_call.add_argument (variant_expr);
 
+		bool is_signature = basic_type.signature == "g";
+
 		if (basic_type.is_string) {
-			if (transfer) {
+			if (transfer || is_signature) {
 				get_call.call = new CCodeIdentifier ("g_variant_get_string");
 			} else {
 				get_call.call = new CCodeIdentifier ("g_variant_dup_string");
 			}
 			get_call.add_argument (new CCodeConstant ("NULL"));
+		}
+		if (is_signature) {
+			var type_new_call = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_type_new"));
+			type_new_call.add_argument (get_call);
+			return type_new_call;
 		}
 
 		return get_call;
@@ -685,6 +692,29 @@ public class Vala.GVariantModule : GValueModule {
 	}
 
 	CCodeExpression? serialize_basic (BasicTypeInfo basic_type, CCodeExpression expr) {
+		if (basic_type.signature == "g") {
+			string temp_name = "_tmp%d_".printf (next_temp_var_id++);
+			ccode.add_declaration ("gchar*", new CCodeVariableDeclarator (temp_name));
+			var ctemp = new CCodeIdentifier (temp_name);
+			var dup_string_call = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_type_dup_string"));
+			dup_string_call.add_argument (expr);
+			ccode.add_assignment (ctemp, dup_string_call);
+
+			// Avoid g_variant_new_signature, since it takes an unowned string, and
+			// we want to transfer ownership of ours.
+			var strlen_call = new CCodeFunctionCall (new CCodeIdentifier ("strlen"));
+			strlen_call.add_argument (ctemp);
+			var csize = new CCodeBinaryExpression (CCodeBinaryOperator.PLUS, strlen_call, new CCodeConstant ("1"));
+			var new_call = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_new_from_data"));
+			new_call.add_argument (new CCodeConstant ("G_VARIANT_TYPE_SIGNATURE"));
+			new_call.add_argument (ctemp);
+			new_call.add_argument (csize);
+			new_call.add_argument (new CCodeConstant ("TRUE"));
+			new_call.add_argument (new CCodeIdentifier ("g_free"));
+			new_call.add_argument (ctemp);
+			return new_call;
+		}
+
 		var new_call = new CCodeFunctionCall (new CCodeIdentifier ("g_variant_new_" + basic_type.type_name));
 		new_call.add_argument (expr);
 		return new_call;
