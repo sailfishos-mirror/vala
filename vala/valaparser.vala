@@ -3492,6 +3492,10 @@ public class Vala.Parser : CodeVisitor {
 		parent.add_destructor (d);
 	}
 
+	bool is_anonymous_type (string? type) {
+		return null != type && /^\s*(union|struct|enum)\s*{/.match (type);
+	}
+
 	void parse_struct_declaration (Symbol parent, List<Attribute>? attrs) throws ParseError {
 		var begin = get_location ();
 		var access = parse_access_modifier ();
@@ -3514,6 +3518,15 @@ public class Vala.Parser : CodeVisitor {
 		}
 		if (base_type != null) {
 			st.base_type = base_type;
+		}
+		if (is_anonymous_type (st.get_attribute_string ("CCode", "cname"))) { // check for an anonymous cname type
+			st.anonymous = true;
+			if (st.get_attribute_bool ("CCode", "has_typedef", true)) {
+				Report.error (get_last_src (), "Anonymous cname types must have [CCode (has_typedef = false)]");
+			} else {
+				// having an anonymous struct for PathDataPoint and PathDataHeader is quite a hack
+				Report.warning (get_last_src (), "Anonymous cname types for a vala struct are discouraged and should only be used for ABI compatibility.");
+			}
 		}
 
 		parse_declarations (st);
@@ -3587,6 +3600,14 @@ public class Vala.Parser : CodeVisitor {
 			en.is_extern = true;
 		}
 		set_attributes (en, attrs);
+		if (is_anonymous_type (en.get_attribute_string ("CCode", "cname"))) { // check for an anonymous cname type
+			en.anonymous = true;
+			if (en.get_attribute_bool ("CCode", "has_typedef", true)) {
+				Report.error (get_last_src (), "Anonymous cname types must have [CCode (has_typedef = false)]");
+			} else {
+				Report.warning (get_last_src (), "Anonymous cname types for a vala enum are discouraged and should only be used for ABI compatibility.");
+			}
+		}
 
 		expect (TokenType.OPEN_BRACE);
 		var inner_begin = get_location ();
