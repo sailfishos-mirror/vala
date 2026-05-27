@@ -337,7 +337,6 @@ GIDL_BINDINGS = \
 	gdk-2.0 \
 	gdk-x11-2.0 \
 	gdl-1.0 \
-	gio-unix-2.0 \
 	gnome-desktop-2.0 \
 	gnome-vfs-2.0 \
 	goocanvas \
@@ -401,6 +400,7 @@ GIR_BINDINGS = \
 	geocode-glib-1.0 \
 	geocode-glib-2.0 \
 	gio-2.0 \
+	gio-unix-2.0 \
 	gmodule-2.0 \
 	gnome-bg-4 \
 	gnome-desktop-3.0 \
