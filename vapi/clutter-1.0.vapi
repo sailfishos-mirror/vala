@@ -5372,7 +5372,7 @@ namespace Clutter {
 		public virtual signal void paint ();
 		[Version (since = "0.2")]
 		public virtual signal void parent_set (Clutter.Actor? old_parent);
-		[Version (since = "1.0")]
+		[Version (deprecated = false, since = "1.0")]
 		public virtual signal void pick (Clutter.Color color);
 		[HasEmitter]
 		[Version (since = "1.2")]
@@ -8455,12 +8455,13 @@ namespace Clutter {
 		ANIMATION_LAST
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_BIN_ALIGNMENT_", type_id = "clutter_bin_alignment_get_type ()")]
-	[Version (since = "1.2")]
+	[Version (deprecated = false, since = "1.2")]
 	public enum BinAlignment {
 		[Version (deprecated = true)]
 		FIXED,
 		[Version (deprecated = true)]
 		FILL,
+		[Version (deprecated = false)]
 		START,
 		[Version (deprecated = true)]
 		END,
